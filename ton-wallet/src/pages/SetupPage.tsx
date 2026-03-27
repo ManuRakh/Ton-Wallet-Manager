@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { generateMnemonic, mnemonicToWallet, validateMnemonic } from "@/lib/wallet";
 import { useWallet } from "@/context/WalletContext";
+import { savePin } from "@/lib/storage";
+import PinSetupPage from "./PinSetupPage";
+import ImportKeyPage from "./ImportKeyPage";
 
-type Step = "choose" | "create-show" | "create-confirm" | "import";
+type Step = "choose" | "create-show" | "create-confirm" | "import" | "import-key" | "pin-setup";
 
 export default function SetupPage() {
   const { setWallet } = useWallet();
@@ -41,16 +44,11 @@ export default function SetupPage() {
       setError("Фраза не совпадает. Проверьте введённые слова.");
       return;
     }
-    setLoading(true);
-    setError("");
-    try {
-      const { address } = await mnemonicToWallet(mnemonic);
-      setWallet({ mnemonic, address, createdAt: Date.now() });
-    } catch {
-      setError("Ошибка создания кошелька");
-    } finally {
-      setLoading(false);
-    }
+    setStep("pin-setup");
+  };
+
+  const finishSetup = async (walletData: { mnemonic: string[]; address: string }) => {
+    setWallet({ ...walletData, createdAt: Date.now() });
   };
 
   const handleImport = async () => {
@@ -69,13 +67,42 @@ export default function SetupPage() {
         return;
       }
       const { address } = await mnemonicToWallet(words);
-      setWallet({ mnemonic: words, address, createdAt: Date.now() });
+      setMnemonic(words);
+      setStep("pin-setup");
     } catch {
       setError("Ошибка импорта кошелька. Проверьте фразу.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (step === "pin-setup") {
+    return (
+      <PinSetupPage
+        onPinSet={async (pin) => {
+          savePin(pin);
+          const { address } = await mnemonicToWallet(mnemonic);
+          finishSetup({ mnemonic, address });
+        }}
+        onSkip={async () => {
+          const { address } = await mnemonicToWallet(mnemonic);
+          finishSetup({ mnemonic, address });
+        }}
+      />
+    );
+  }
+
+  if (step === "import-key") {
+    return (
+      <ImportKeyPage
+        onBack={() => setStep("choose")}
+        onImport={(wallet) => {
+          setStep("pin-setup");
+          setMnemonic(wallet.mnemonic);
+        }}
+      />
+    );
+  }
 
   if (step === "choose") {
     return (
@@ -105,7 +132,13 @@ export default function SetupPage() {
               onClick={() => { setStep("import"); setError(""); }}
               className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 transition-colors"
             >
-              Импортировать кошелёк
+              Импортировать мнемонику
+            </button>
+            <button
+              onClick={() => { setStep("import-key"); setError(""); }}
+              className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 transition-colors"
+            >
+              Импортировать приватный ключ
             </button>
           </div>
           {error && <p className="mt-4 text-red-400 text-sm text-center">{error}</p>}

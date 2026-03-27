@@ -73,9 +73,10 @@ function TxItem({ tx }: { tx: TonTransaction }) {
 interface DashboardPageProps {
   onSend: () => void;
   onReceive: () => void;
+  onExport: () => void;
 }
 
-export default function DashboardPage({ onSend, onReceive }: DashboardPageProps) {
+export default function DashboardPage({ onSend, onReceive, onExport }: DashboardPageProps) {
   const { wallet, balance, transactions, isLoadingBalance, isLoadingTx, refreshBalance, refreshTransactions, logout } = useWallet();
   const [search, setSearch] = useState("");
   const [copied, setCopied] = useState(false);
@@ -131,6 +132,16 @@ export default function DashboardPage({ onSend, onReceive }: DashboardPageProps)
                   <path d="M2.5 13.5A6.5 6.5 0 0 0 13.5 8" strokeLinecap="round"/>
                   <path d="M13.5 2.5V5.5H10.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2.5 13.5V10.5H5.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <button
+                onClick={onExport}
+                className="text-gray-500 hover:text-white transition-colors p-1"
+                title="Экспорт"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M14 10v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2"/>
+                  <path d="M8 12V3M8 3L5 6M8 3l3 3"/>
                 </svg>
               </button>
               <button

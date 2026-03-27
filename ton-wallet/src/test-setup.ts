@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom";
+import { vi } from "vitest";
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -10,4 +11,7 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+global.localStorage = localStorageMock as any;
+
+global.btoa = (str: string) => Buffer.from(str, 'binary').toString('base64');
+global.atob = (str: string) => Buffer.from(str, 'base64').toString('binary');
