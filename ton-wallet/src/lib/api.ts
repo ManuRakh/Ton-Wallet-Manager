@@ -94,6 +94,10 @@ export async function fetchSeqno(address: string): Promise<number> {
   });
   const data = await res.json();
   if (!data.ok) return 0;
+  // exit_code 0 or 1 = TVM success; anything else (e.g. -13) means
+  // the contract is not initialized or the method doesn't exist — treat as seqno 0.
+  const exitCode: number = data.result?.exit_code ?? -1;
+  if (exitCode !== 0 && exitCode !== 1) return 0;
   const stack = data.result?.stack;
   if (Array.isArray(stack) && stack[0]) {
     return parseInt(stack[0][1], 16);

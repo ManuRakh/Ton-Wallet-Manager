@@ -1,8 +1,0 @@
-uploads = []
-generated = []
-
-[[outputs]]
-id = "2VbRNCxGtMwmTxjOBGRmC"
-uri = "file://artifacts/ton-wallet/README.md"
-type = "text"
-title = "README — TON Testnet Wallet"

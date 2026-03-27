@@ -61,10 +61,33 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setTransactions([]);
   };
 
+  // Sequential to respect toncenter free-tier rate limit (1 req/s)
+  const refreshAll = async (addr: string) => {
+    setIsLoadingBalance(true);
+    setIsLoadingTx(true);
+    try {
+      const bal = await fetchBalance(addr);
+      setBalance(bal);
+    } catch {
+      setBalance("0");
+    } finally {
+      setIsLoadingBalance(false);
+    }
+    // Small gap between requests
+    await new Promise((r) => setTimeout(r, 1100));
+    try {
+      const txs = await fetchTransactions(addr);
+      setTransactions(txs);
+    } catch {
+      setTransactions([]);
+    } finally {
+      setIsLoadingTx(false);
+    }
+  };
+
   useEffect(() => {
     if (wallet) {
-      refreshBalance();
-      refreshTransactions();
+      refreshAll(wallet.address);
     }
   }, [wallet?.address]);
 

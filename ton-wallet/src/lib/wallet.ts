@@ -1,5 +1,13 @@
 import { mnemonicNew, mnemonicToPrivateKey, mnemonicValidate } from "@ton/crypto";
-import { WalletContractV4, internal, toNano, Address, beginCell } from "@ton/ton";
+import {
+  WalletContractV4,
+  internal,
+  external,
+  toNano,
+  Address,
+  beginCell,
+  storeMessage,
+} from "@ton/ton";
 import { fetchSeqno, broadcastBoc } from "./api";
 
 export async function generateMnemonic(): Promise<string[]> {
@@ -48,6 +56,8 @@ export async function sendTon(
     });
 
     const myAddress = wallet.address.toString({ testOnly: true, bounceable: false });
+
+    // Request 1: get seqno via REST (not TonClient JSON-RPC — saves one extra state check)
     const seqno = await fetchSeqno(myAddress);
 
     let body = beginCell().endCell();
@@ -55,7 +65,7 @@ export async function sendTon(
       body = beginCell().storeUint(0, 32).storeStringTail(comment).endCell();
     }
 
-    const transfer = wallet.createTransfer({
+    const transferBody = wallet.createTransfer({
       seqno,
       secretKey: keyPair.secretKey,
       messages: [
@@ -69,7 +79,23 @@ export async function sendTon(
       sendMode: 3,
     });
 
-    const boc = transfer.toBoc().toString("base64");
+    // When seqno === 0 the wallet contract is not yet deployed.
+    // Include stateInit so the validator deploys it together with this message.
+    const externalMsg = external({
+      to: wallet.address,
+      init: seqno === 0 ? wallet.init : undefined,
+      body: transferBody,
+    });
+
+    // storeMessage handles external-in; external() returns MessageRelaxed
+    // which is structurally identical for external-in — safe cast.
+    const boc = beginCell()
+      .store(storeMessage(externalMsg as any))
+      .endCell()
+      .toBoc()
+      .toString("base64");
+
+    // Request 2: broadcast
     await broadcastBoc(boc);
 
     return { success: true };
