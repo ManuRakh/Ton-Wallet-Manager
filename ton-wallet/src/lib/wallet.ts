@@ -76,7 +76,7 @@ export async function sendTon(
           body,
         }),
       ],
-      sendMode: 3,
+      sendMode: 2,
     });
 
     // When seqno === 0 the wallet contract is not yet deployed.

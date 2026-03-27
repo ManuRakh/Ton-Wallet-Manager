@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useWallet } from "@/context/WalletContext";
-import { TonTransaction } from "@/lib/wallet";
+import { TonTransaction } from "@/lib/api";
 
 function formatDate(utime: number): string {
   return new Date(utime * 1000).toLocaleString("ru-RU", {
