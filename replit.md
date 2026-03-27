@@ -39,11 +39,10 @@ React + Vite SPA, fully client-side, no backend.
 - **Node.js version**: 24
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Backend framework**: NestJS (modules, DI, decorators)
+- **Frontend**: React + Vite
+- **Validation**: Plain TypeScript types — no Zod
+- **Build**: tsc (backend), Vite (frontend)
 
 ## Structure
 

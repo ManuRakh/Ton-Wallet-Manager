@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { loadWallet, saveWallet, clearWallet, StoredWallet } from "@/lib/storage";
-import { getBalance, getTransactions, TonTransaction } from "@/lib/wallet";
+import { fetchBalance, fetchTransactions, TonTransaction } from "@/lib/api";
 
 interface WalletContextValue {
   wallet: StoredWallet | null;
@@ -33,8 +33,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!wallet) return;
     setIsLoadingBalance(true);
     try {
-      const bal = await getBalance(wallet.address);
+      const bal = await fetchBalance(wallet.address);
       setBalance(bal);
+    } catch {
+      setBalance("0");
     } finally {
       setIsLoadingBalance(false);
     }
@@ -44,8 +46,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!wallet) return;
     setIsLoadingTx(true);
     try {
-      const txs = await getTransactions(wallet.address);
+      const txs = await fetchTransactions(wallet.address);
       setTransactions(txs);
+    } catch {
+      setTransactions([]);
     } finally {
       setIsLoadingTx(false);
     }
