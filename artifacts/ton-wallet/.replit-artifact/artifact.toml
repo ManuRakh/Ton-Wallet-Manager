@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "TON Testnet Wallet"
+version = "1.0.0"
+id = "artifacts/ton-wallet"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22937
+
+[services.development]
+run = "pnpm --filter @workspace/ton-wallet run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ton-wallet", "run", "build" ]
+publicDir = "artifacts/ton-wallet/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22937"
+BASE_PATH = "/"

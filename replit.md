@@ -4,6 +4,35 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
+## Artifacts
+
+### `artifacts/ton-wallet` — TON Testnet Self-Custodial Wallet
+
+React + Vite SPA, fully client-side, no backend.
+
+**Tech:**
+- `@ton/ton`, `@ton/crypto`, `@ton/core` — TON blockchain integration
+- `react-qr-code` — QR code generation for receive screen
+- `vite-plugin-node-polyfills` — Node.js polyfills (Buffer, crypto) for browser
+- `vitest` — unit tests
+- TON Testnet API: `testnet.toncenter.com`
+- `localStorage` — mnemonic and recent address storage
+
+**Features:**
+- Create new wallet (24-word BIP39 mnemonic)
+- Import wallet via mnemonic
+- Dashboard: address, balance, transaction history with search
+- Receive screen: address display, copy, QR code
+- Send screen: validation, security warnings, confirmation step
+- Anti-address-poisoning: Levenshtein distance check, self-send detection, new address info
+
+**Security checks (lib/security.ts):**
+- Danger: same address as self → blocked
+- Danger: address similar to known by ≤3 chars (Levenshtein) → blocked
+- Info: new/unknown address → shown, not blocked
+- Warning: sending >95% of balance → shown, not blocked
+- Warning: sending >100 TON → shown, not blocked
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
